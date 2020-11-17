@@ -57,6 +57,10 @@ def get_letter_for_units(units):
     """Returns a shorthand letter for the given units."""
     return 'F' if units == 'imperial' else 'C' if units == 'metric' else 'K'
 
+json_data = {
+
+}
+
 @app.route('/results')
 def results():
     """Displays results for current weather conditions."""
@@ -77,6 +81,8 @@ def results():
     }
 
     result_json = requests.get(url, params=params).json()
+
+    json_data = result_json
 
     # Uncomment the line below to see the results of the API call!
     print("\n\n\n----------------------------------testing----------------------------------\n")
@@ -103,19 +109,19 @@ def results():
     }
 
     return render_template('results.html', **context)
-
+   
 def get_min_temp(results):
     """Returns the minimum temp for the given hourly weather objects."""
     # TODO: Fill in this function to return the minimum temperature from the
     # hourly weather data.
-    min_temp = result_json['main']['temp_min']            # result_jason is outside scope of this func
+    min_temp = results['main']['temp_min']          # result_jason is outside scope of this func
     return min_temp
 
 def get_max_temp(results):
     """Returns the maximum temp for the given hourly weather objects."""
     # TODO: Fill in this function to return the maximum temperature from the
     # hourly weather data.
-    max_temp = result_json['main']['temp_max']            # result_jason is outside scope of this func
+    max_temp = results['main']['temp_max']            # result_jason is outside scope of this func
     return max_temp
 
 def get_lat_lon(city_name):
@@ -151,8 +157,22 @@ def historical_results():
         'dt': date_in_seconds,
         'units': units
     }
-
     result_json = requests.get(url, params=params).json()
+
+    
+    
+    URL = 'http://api.openweathermap.org/data/2.5/weather'
+    PARAMS = {
+        # TODO: Enter query parameters here for the 'appid' (your api key),
+        # the city, and the units (metric or imperial).
+        # See the documentation here: https://openweathermap.org/current
+        'appid': 'b9870f31fe6d30d0a49345f88fff52eb',
+        'q': city,
+        'units': units
+    }
+    json_data = requests.get(URL, params=PARAMS).json()
+
+
 
     # Uncomment the line below to see the results of the API call!
     print("\n\n\n----------------------------------testing----------------------------------\n")
@@ -160,7 +180,9 @@ def historical_results():
     print("\n----------------------------------testing----------------------------------\n\n\n")
 
     result_current = result_json['current']
-    result_hourly = result_json['hourly']
+    # result_hourly = result_json['hourly']
+    print("--->here")
+    print(json_data)
 
     # TODO: Replace the empty variables below with their appropriate values.
     # You'll need to retrieve these from the 'result_current' object above.
@@ -173,10 +195,11 @@ def historical_results():
         'units_letter': get_letter_for_units(units), # should be 'C', 'F', or 'K'
         'description': result_current['weather'][0]['description'],
         'temp': result_current['temp'],
-        'min_temp': get_min_temp(result_hourly),
-        'max_temp': get_max_temp(result_hourly)
+        'min_temp': get_min_temp(json_data),   #result_hourly
+        'max_temp': get_max_temp(json_data)    #result_hourly
     }
-
+    print(context)
+    # return "hello world=================================="
     return render_template('historical_results.html', **context)
 
 
